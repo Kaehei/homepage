@@ -42,7 +42,7 @@ npm install
 </details>
 
 <details open>
-<summary><strong>2️启动开发环境</strong></summary>
+<summary><strong>启动开发环境</strong></summary>
 
 ```bash
 npm run dev
