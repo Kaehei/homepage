@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🚀 个人主页项目
+# 🚀 Kaehei's Homepage
 
 <p align="center">
   <img src="https://img.shields.io/github/license/hkyang233/homepage?style=for-the-badge&logo=apache&logoColor=white" alt="License" />
