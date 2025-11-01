@@ -104,6 +104,13 @@ const friends: Friend[] = [
     "avatar": "https://avatars.githubusercontent.com/u/30802664?v=4",
     "color": "#FFB11B"
   },
+    {
+    "name": "MaxQi的说说",
+    "url": "https://maxqi.top",
+    "description": "一名高中生的技术与成长记录",
+    "avatar": "https://p.maxqi.top/img/2025/10/01/68dce7326320a.png ",
+    "color": "#5bae23"
+  },
   {
     name: "添加友链",
     url: "/friends/add",
