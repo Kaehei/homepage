@@ -4,6 +4,12 @@ import { useEffect, useState, useRef } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 import ClickFeedback from '@/components/click-feedback'
 import { toast } from "sonner"
 
@@ -618,6 +624,25 @@ export default function FriendsAddPage() {
                 </p>
               </div>
             </motion.div>
+          </div>
+
+          {/* 失联友链 */}
+          <div className="mb-20 max-w-2xl mx-auto">
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="lost-contact" className="border-border/40">
+                <AccordionTrigger className="text-muted-foreground hover:text-foreground hover:no-underline text-sm">
+                  失联友链
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className="pt-2 text-muted-foreground text-sm leading-loose">
+                    <p>以下友链暂时无法访问或已移除本站链接。如果您是站长并已恢复，请联系我恢复友链。</p>
+                    <ul className="list-disc pl-5 mt-2 space-y-1 text-xs text-muted-foreground/80">
+                      <li>无法访问 (https://puddingkc.com) - PuddingKC's Blog</li>
+                    </ul>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
           </div>
 
           {/* 评论区 */}

@@ -14,6 +14,8 @@ import "highlight.js/styles/github-dark.css"
 import LoadingSpinner from '@/components/loading-spinner'
 import { toast } from "sonner"
 import { Skeleton } from '@/components/ui/skeleton'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { TriangleAlert } from "lucide-react"
 
 interface Post {
   cid: number
@@ -383,8 +385,7 @@ const CommentSection = ({ comments, cid, onCommentsChange }: {
       <div className="comment-form">
         <motion.form
           initial="hidden"
-          whileInView="show"
-          viewport={{ once: true }}
+          animate="show"
           variants={{
             show: { transition: { staggerChildren: 0.1 } }
           }}
@@ -392,7 +393,7 @@ const CommentSection = ({ comments, cid, onCommentsChange }: {
             e.preventDefault()
             setSubmitting(true)
             try {
-              await fetch('https://blog.kaeshi.top/api-comment.php', {
+              const response = await fetch('https://blog.kaeshi.top/api-comment.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: new URLSearchParams({
@@ -401,8 +402,22 @@ const CommentSection = ({ comments, cid, onCommentsChange }: {
                   mail: commentForm.mail,
                   text: commentForm.text,
                   parent: commentForm.parent
-                })
+                }).toString()
               })
+              const text = await response.text()
+              let result
+              try {
+                const jsonMatch = text.match(/\{"status":\d+,.*\}$/)
+                const jsonString = jsonMatch ? jsonMatch[0] : text
+                result = JSON.parse(jsonString)
+              } catch (e) {
+                throw new Error('服务器响应格式错误')
+              }
+
+              if (result.status !== 200) {
+                throw new Error(result.msg || result.error || '评论发送失败')
+              }
+
               setCommentForm({ author: '', mail: '', text: '', parent: '0' })
               setReplyTo(null)
               const res = await fetch(`https://blog.kaeshi.top/api/commentsByCid?cid=${cid}`)
@@ -413,8 +428,8 @@ const CommentSection = ({ comments, cid, onCommentsChange }: {
               }))
               onCommentsChange(newComments)
               toast.success('评论发送成功！')
-            } catch (error) {
-              toast.error('评论发送失败，请稍后重试')
+            } catch (error: any) {
+              toast.error(error.message || '评论发送失败，请稍后重试')
             } finally {
               setSubmitting(false)
             }
@@ -643,6 +658,9 @@ export default function BlogDetailPage() {
   )
   if (!post) return <div className="text-center py-10">文章不存在或数据结构不符</div>
 
+  const daysAgo = Math.floor((Date.now() - post.created * 1000) / (1000 * 60 * 60 * 24))
+  const isOldPost = daysAgo > 548 // 1.5 years
+
   return (
     <div className="flex min-h-screen flex-col">
       <main className="flex-1">
@@ -669,6 +687,23 @@ export default function BlogDetailPage() {
               <span>{getReadTime(post.text)} 分钟阅读</span>
             </div>
           </motion.div>
+
+          {isOldPost && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="mb-6"
+            >
+              <Alert variant="warning">
+                <TriangleAlert className="h-4 w-4" />
+                <AlertTitle>注意</AlertTitle>
+                <AlertDescription>
+                  本文发布于 {daysAgo} 天前，内容可能已经过时，请谨慎参考。
+                </AlertDescription>
+              </Alert>
+            </motion.div>
+          )}
           <motion.div
             className="mb-10"
             initial={{ opacity: 0, y: 20 }}

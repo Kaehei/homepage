@@ -96,9 +96,9 @@ const friends: Friend[] = [
   },
   {
     name: "酷丁的主页",
-    url: "https://coldin.top",
+    url: "https://cold04.com",
     description: "一个羞涩的小朋友的自我介绍页面",
-    avatar: "https://coldin.top/avatar.png",
+    avatar: "https://cold04.com/avatar.png",
     color: "#28a745",
     tag: "DEV"
   },
@@ -108,14 +108,6 @@ const friends: Friend[] = [
     description: "寸进具欢喜，万物皆可爱。",
     avatar: "https://gcore.jsdelivr.net/gh/XenWayne/sitefile@master/img/avatar_square.png",
     color: "#4280ff",
-    tag: "DEV"
-  },
-  {
-    name: "PuddingKC's Blog",
-    url: "https://puddingkc.com/",
-    description: "愿你所热爱的依旧不减当年。",
-    avatar: "https://www.puddingkc.com/api/v2/objects/avatar/2cfgqfbuk0clj9t0md.webp",
-    color: "#FFB3A7",
     tag: "DEV"
   },
   {

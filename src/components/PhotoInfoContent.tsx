@@ -190,11 +190,18 @@ export default function PhotoInfoContent() {
                   <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-4">EXIF Data</div>
                   <div className="grid grid-cols-1 gap-3 md:gap-4 text-sm">
                     {Object.entries(photo.exif).map(([key, value]) => {
-                      // Fix double f/ in aperture (e.g. "f/f/2.8" -> "f/2.8")
                       let displayValue = value;
-                      if ((key.includes('光圈') || key.toLowerCase().includes('aperture')) && value.startsWith('f/f/')) {
-                        displayValue = value.replace('f/f/', 'f/');
+
+                      // Handle missing or empty values
+                      if (!displayValue || (typeof displayValue === 'string' && displayValue.trim() === '')) {
+                        displayValue = 'N/A';
                       }
+
+                      // Fix double f/ in aperture (e.g. "f/f/2.8" -> "f/2.8")
+                      if (displayValue !== 'N/A' && (key.includes('光圈') || key.toLowerCase().includes('aperture')) && displayValue.startsWith('f/f/')) {
+                        displayValue = displayValue.replace('f/f/', 'f/');
+                      }
+
                       return (
                         <div key={key} className="flex justify-between items-center py-1 border-b border-border/20 last:border-0">
                           <span className="text-muted-foreground">{key}</span>
