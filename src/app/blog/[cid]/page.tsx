@@ -3,7 +3,7 @@ import { useEffect, useState, useRef } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { Navbar } from '@/components/navbar'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import ClickFeedback from '@/components/click-feedback'
 import dynamic from "next/dynamic"
@@ -15,7 +15,7 @@ import LoadingSpinner from '@/components/loading-spinner'
 import { toast } from "sonner"
 import { Skeleton } from '@/components/ui/skeleton'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { TriangleAlert } from "lucide-react"
+import { TriangleAlert, FileQuestion } from "lucide-react"
 
 interface Post {
   cid: number
@@ -377,8 +377,7 @@ const CommentSection = ({ comments, cid, onCommentsChange }: {
   return (
     <div className="space-y-12">
       <div className="space-y-2">
-        <h2 className="text-2xl font-bold tracking-tight">Comments ({comments.length})</h2>
-        <div className="h-1 w-12 bg-primary rounded-full" />
+        <h2 className="text-2xl font-bold tracking-tight">评论 ({comments.length})</h2>
       </div>
 
       {/* 评论表单 */}
@@ -568,26 +567,39 @@ export default function BlogDetailPage() {
   }, [])
 
   useEffect(() => {
-    Promise.all([
-      fetch(`https://blog.kaeshi.top/api/post?cid=${cid}`).then(res => res.json()),
-      fetch(`https://blog.kaeshi.top/api/commentsByCid?cid=${cid}`).then(res => res.json())
-    ]).then(([postData, commentsData]) => {
-      const postRaw = postData.data
-      const post = postRaw
-        ? {
-          ...postRaw,
-          created: Number(postRaw.created),
-          author: { screenName: postRaw.author?.[0]?.screenName || '' }
-        }
-        : null
-      const commentList = Array.isArray(commentsData.data) ? commentsData.data : []
-      setPost(post)
-      setComments(commentList.map((c: any) => ({
-        ...c,
-        created: Number(c.created)
-      })))
-      setLoading(false)
-    })
+    const fetchData = async () => {
+      try {
+        const [postRes, commentsRes] = await Promise.all([
+          fetch(`https://blog.kaeshi.top/api/post?cid=${cid}`),
+          fetch(`https://blog.kaeshi.top/api/commentsByCid?cid=${cid}`)
+        ])
+
+        const postData = await postRes.json().catch(() => ({ data: null }))
+        const commentsData = await commentsRes.json().catch(() => ({ data: [] }))
+
+        const postRaw = postData?.data
+        const post = postRaw
+          ? {
+            ...postRaw,
+            created: Number(postRaw.created),
+            author: { screenName: postRaw.author?.[0]?.screenName || '' }
+          }
+          : null
+        const commentList = Array.isArray(commentsData?.data) ? commentsData.data : []
+        setPost(post)
+        setComments(commentList.map((c: any) => ({
+          ...c,
+          created: Number(c.created)
+        })))
+      } catch (e) {
+        console.error("Failed to fetch blog data:", e)
+        setPost(null)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
   }, [cid])
 
   const getReadTime = (text: string) => {
@@ -595,157 +607,184 @@ export default function BlogDetailPage() {
     return Math.max(1, Math.round(words / 300))
   }
 
-  if (loading) return (
-    <div className="flex min-h-screen flex-col">
-      <main className="flex-1">
-        <article className="container max-w-2xl mx-auto py-8 md:py-12">
-          <div className="mb-6">
-            <div className="flex flex-wrap gap-2 mb-2">
-              {[1, 2, 3].map(i => (
-                <Skeleton key={i} className="w-12 h-5 rounded bg-primary/10" />
-              ))}
-            </div>
-            <Skeleton className="h-10 w-3/4 mb-2" />
-            <div className="flex flex-wrap gap-2 items-center text-xs text-muted-foreground mb-2">
-              <Skeleton className="h-4 w-16" />
-              <Skeleton className="h-4 w-4" />
-              <Skeleton className="h-4 w-12" />
-              <Skeleton className="h-4 w-4" />
-              <Skeleton className="h-4 w-16" />
-              <Skeleton className="h-4 w-4" />
-              <Skeleton className="h-4 w-20" />
-            </div>
-          </div>
-          <div className="mb-10 space-y-4">
-            {[...Array(5)].map((_, i) => (
-              <Skeleton key={i} className="h-5 w-full" />
-            ))}
-            <Skeleton className="h-5 w-2/3" />
-            <Skeleton className="h-5 w-1/2" />
-          </div>
-          <section className="mt-12">
-            <div className="space-y-6">
-              <Skeleton className="h-6 w-24 mb-2" />
-              {/* 评论表单骨架 */}
-              <div className="rounded-lg border bg-card p-4 space-y-3">
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <Skeleton className="h-9 w-full" />
-                  <Skeleton className="h-9 w-full" />
-                </div>
-                <Skeleton className="h-20 w-full" />
-                <Skeleton className="h-9 w-32" />
-              </div>
-              {/* 评论列表骨架 */}
-              {[...Array(2)].map((_, i) => (
-                <div key={i} className="flex gap-3">
-                  <Skeleton className="w-8 h-8 rounded-full" />
-                  <div className="flex-1 space-y-2">
-                    <Skeleton className="h-4 w-24" />
-                    <Skeleton className="h-4 w-1/2" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        </article>
-      </main>
-      <footer className="py-6 md:py-0">
-        <div className="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
-          <Skeleton className="h-4 w-64" />
-        </div>
-      </footer>
-    </div>
-  )
-  if (!post) return <div className="text-center py-10">文章不存在或数据结构不符</div>
+  if (loading) {
+  }
 
-  const daysAgo = Math.floor((Date.now() - post.created * 1000) / (1000 * 60 * 60 * 24))
-  const isOldPost = daysAgo > 548 // 1.5 years
+  const daysAgo = post ? Math.floor((Date.now() - post.created * 1000) / (1000 * 60 * 60 * 24)) : 0
+  const isOldPost = daysAgo > 548
 
   return (
     <div className="flex min-h-screen flex-col">
-      <main className="flex-1">
-        <article className="container max-w-2xl mx-auto py-8 md:py-12">
+      <AnimatePresence mode="wait">
+        {loading ? (
           <motion.div
-            className="mb-6"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            key="loading"
+            exit={{ opacity: 0, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } }}
+            className="flex-1 flex flex-col"
           >
-            <div className="flex flex-wrap gap-2 mb-2">
-              {post.tag && post.tag.map((t, i) => (
-                <span key={i} className="px-2 py-0.5 rounded bg-primary/10 text-primary text-xs">{t.name}</span>
-              ))}
-            </div>
-            <h1 className="font-heading text-4xl md:text-5xl font-bold mb-4 leading-tight break-words tracking-tight">{post.title}</h1>
-            <div className="flex flex-wrap gap-2 items-center text-xs text-muted-foreground mb-2">
-              <span>{new Date(post.created * 1000).toLocaleDateString()}</span>
-              <span>·</span>
-              <span>by Yang</span>
-              <span>·</span>
-              <span>{post.directory}</span>
-              <span>·</span>
-              <span>{getReadTime(post.text)} 分钟阅读</span>
+            <main className="flex-1">
+              <article className="container max-w-2xl mx-auto py-8 md:py-12">
+                <div className="mb-6">
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {[1, 2, 3].map(i => (
+                      <Skeleton key={i} className="w-12 h-5 rounded bg-primary/10" />
+                    ))}
+                  </div>
+                  <Skeleton className="h-12 md:h-14 w-3/4 mb-4" />
+                  <div className="flex flex-wrap gap-2 items-center text-xs text-muted-foreground mb-2">
+                    <Skeleton className="h-4 w-16" />
+                    <Skeleton className="h-4 w-4" />
+                    <Skeleton className="h-4 w-12" />
+                    <Skeleton className="h-4 w-4" />
+                    <Skeleton className="h-4 w-16" />
+                    <Skeleton className="h-4 w-4" />
+                    <Skeleton className="h-4 w-20" />
+                  </div>
+                </div>
+                <div className="mb-10 space-y-4">
+                  {[...Array(5)].map((_, i) => (
+                    <Skeleton key={i} className="h-5 w-full" />
+                  ))}
+                  <Skeleton className="h-5 w-2/3" />
+                  <Skeleton className="h-5 w-1/2" />
+                </div>
+                <section className="mt-12">
+                  <div className="space-y-6">
+                    <Skeleton className="h-6 w-24 mb-2" />
+                    <div className="rounded-lg border bg-card p-4 space-y-3">
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <Skeleton className="h-9 w-full" />
+                        <Skeleton className="h-9 w-full" />
+                      </div>
+                      <Skeleton className="h-20 w-full" />
+                      <Skeleton className="h-9 w-32" />
+                    </div>
+                    {[...Array(2)].map((_, i) => (
+                      <div key={i} className="flex gap-3">
+                        <Skeleton className="w-8 h-8 rounded-full" />
+                        <div className="flex-1 space-y-2">
+                          <Skeleton className="h-4 w-24" />
+                          <Skeleton className="h-4 w-1/2" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              </article>
+            </main>
+            <footer className="py-6 md:py-0">
+              <div className="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
+                <Skeleton className="h-4 w-64" />
+              </div>
+            </footer>
+          </motion.div>
+        ) : !post ? (
+          <motion.div
+            key="error"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.3 }}
+            className="flex-1 flex items-center justify-center min-h-[60vh] p-4"
+          >
+            <div className="text-center space-y-6 max-w-md mx-auto p-8">
+              <div className="flex justify-center">
+                <div className="w-16 h-16 rounded-full bg-muted/30 flex items-center justify-center">
+                  <FileQuestion className="w-8 h-8 text-muted-foreground/80" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <h2 className="text-xl font-bold tracking-tight text-foreground/80">文章不存在或已被删除</h2>
+              </div>
             </div>
           </motion.div>
+        ) : (
+          <motion.div
+            key="content"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            className="flex-1 flex flex-col"
+          >
+            <main className="flex-1">
+              <article className="container max-w-2xl mx-auto py-8 md:py-12">
+                <div className="mb-6">
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {post.tag && post.tag.map((t, i) => (
+                      <span key={i} className="px-2 py-0.5 rounded bg-primary/10 text-primary text-xs">{t.name}</span>
+                    ))}
+                  </div>
+                  <h1 className="font-heading text-4xl md:text-5xl font-bold mb-4 leading-tight break-words tracking-tight">{post.title}</h1>
+                  <div className="flex flex-wrap gap-2 items-center text-xs text-muted-foreground mb-2">
+                    <span>{new Date(post.created * 1000).toLocaleDateString()}</span>
+                    <span>·</span>
+                    <span>by Yang</span>
+                    <span>·</span>
+                    <span>{post.directory}</span>
+                    <span>·</span>
+                    <span>{getReadTime(post.text)} 分钟阅读</span>
+                  </div>
+                </div>
 
-          {isOldPost && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="mb-6"
-            >
-              <Alert variant="warning">
-                <TriangleAlert className="h-4 w-4" />
-                <AlertTitle>注意</AlertTitle>
-                <AlertDescription>
-                  本文发布于 {daysAgo} 天前，内容可能已经过时，请谨慎参考。
-                </AlertDescription>
-              </Alert>
-            </motion.div>
-          )}
-          <motion.div
-            className="mb-10"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
-            <MarkdownRender content={post.text} />
+                {isOldPost && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.1 }}
+                    className="mb-6"
+                  >
+                    <Alert variant="warning">
+                      <TriangleAlert className="h-4 w-4" />
+                      <AlertTitle>注意</AlertTitle>
+                      <AlertDescription>
+                        本文发布于 {daysAgo} 天前，内容可能已经过时，请谨慎参考。
+                      </AlertDescription>
+                    </Alert>
+                  </motion.div>
+                )}
+
+                <div className="mb-10">
+                  <MarkdownRender content={post.text} />
+                </div>
+
+                <section className="mt-12">
+                  <CommentSection
+                    comments={comments}
+                    cid={cid}
+                    onCommentsChange={setComments}
+                  />
+                </section>
+              </article>
+            </main>
+            <footer className="py-6 md:py-0">
+              <div className="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
+                <p className="text-center text-sm leading-loose text-muted-foreground md:text-left">
+                  Built by{" "}
+                  <a
+                    href="https://github.com/Kaehei"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="font-medium underline underline-offset-4"
+                  >
+                    Yang
+                  </a>
+                  . The source code is available on{" "}
+                  <a
+                    href="https://github.com/Kaehei/homepage"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="font-medium underline underline-offset-4"
+                  >
+                    GitHub
+                  </a>
+                  .
+                </p>
+              </div>
+            </footer>
           </motion.div>
-          <section className="mt-12">
-            <CommentSection
-              comments={comments}
-              cid={cid}
-              onCommentsChange={setComments}
-            />
-          </section>
-        </article>
-      </main>
-      <footer className="py-6 md:py-0">
-        <div className="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
-          <p className="text-center text-sm leading-loose text-muted-foreground md:text-left">
-            Built by{" "}
-            <a
-              href="https://github.com/Kaehei"
-              target="_blank"
-              rel="noreferrer"
-              className="font-medium underline underline-offset-4"
-            >
-              Yang
-            </a>
-            . The source code is available on{" "}
-            <a
-              href="https://github.com/Kaehei/homepage"
-              target="_blank"
-              rel="noreferrer"
-              className="font-medium underline underline-offset-4"
-            >
-              GitHub
-            </a>
-            .
-          </p>
-        </div>
-      </footer>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
