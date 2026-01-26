@@ -30,12 +30,6 @@ export default function Hero() {
       >
         <motion.div
           className="relative w-32 h-32 rounded-full shadow-lg ring-4 ring-primary/60 overflow-hidden"
-          whileHover={{
-            scale: 1.05,
-            rotate: [0, -2, 2, -2, 0],
-            transition: { duration: 0.4, ease: smoothEase }
-          }}
-          whileTap={{ scale: 0.95 }}
         >
           <Image
             src="/avatar.jpg"

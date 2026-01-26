@@ -11,7 +11,6 @@ interface Friend {
   description: string
   avatar?: string
   color: string
-  tag?: string
 }
 
 const friends: Friend[] = [
@@ -21,7 +20,7 @@ const friends: Friend[] = [
     description: "永远相信美好的事情即将发生",
     avatar: "https://q.qlogo.cn/g?b=qq&nk=2548635484&s=100",
     color: "#346c9c",
-    tag: "FRIEND"
+
   },
   {
     name: "布丁の小窝",
@@ -29,7 +28,7 @@ const friends: Friend[] = [
     description: "一个有梦想的咸鱼",
     avatar: "https://dn-qiniu-avatar.qbox.me/avatar/7da7e82f04de94c795db0301c3397bb6?",
     color: "#fcc307",
-    tag: "FRIEND"
+
   },
   {
     name: "Tianiel's Blog",
@@ -37,7 +36,7 @@ const friends: Friend[] = [
     description: "For Super Earth!",
     avatar: "https://q1.qlogo.cn/g?b=qq&nk=615207910&s=640",
     color: "#1772b4",
-    tag: "FRIEND"
+
   },
   {
     "name": "BobLiu",
@@ -45,7 +44,7 @@ const friends: Friend[] = [
     "description": "Always sleepy",
     "avatar": "https://avatars.githubusercontent.com/u/24805093?v=4",
     "color": "#5bae23",
-    tag: "FRIEND"
+
   },
   {
     name: "小丁的屋舍",
@@ -53,7 +52,7 @@ const friends: Friend[] = [
     description: "谈笑有鸿儒，往来无白丁",
     avatar: "https://xding.top/face.png",
     color: "#009688",
-    tag: "TECH"
+
   },
   {
     name: "fly6022",
@@ -61,7 +60,7 @@ const friends: Friend[] = [
     description: "Salvation lies within.",
     avatar: "https://imageurl.kuri.ink/images/logo.png",
     color: "#8bbdec",
-    tag: "FRIEND"
+
   },
   {
     name: "GoodBoyboy's Blog",
@@ -69,7 +68,7 @@ const friends: Friend[] = [
     description: "惬意小屋 - 点滴记忆",
     avatar: "https://gravatar.goodboyboy.top/avatar/9da9d1d515d273d4794015f2321f6e04?s=96&d=monsterid&r=g",
     color: "#66c18c",
-    tag: "DEV"
+
   },
   {
     name: "欧の魔法屋",
@@ -77,7 +76,15 @@ const friends: Friend[] = [
     description: "咕咕咕",
     avatar: "https://ohmyga.dev/avatar.png",
     color: "#ff7043",
-    tag: "MAGIC"
+
+  },
+  {
+    name: "龙星划空",
+    url: "https://blog.245179.xyz/",
+    description: "人生近看是悲剧，远看是喜剧",
+    avatar: "https://blog.245179.xyz/images/atiq.png",
+    color: "#FFC773",
+
   },
   {
     name: "Nero978 的日记",
@@ -85,7 +92,7 @@ const friends: Friend[] = [
     description: "Brave yourself, brave the world.",
     avatar: "https://nero978.top/wp-content/uploads/2023/07/logo.jpg",
     color: "#4280ff",
-    tag: "DIARY"
+
   },
   {
     name: "深海小涛",
@@ -93,7 +100,7 @@ const friends: Friend[] = [
     description: "又一个垃圾技术博客",
     avatar: "https://blog.xtao.de/img/avatar.jpg",
     color: "#2775B6",
-    tag: "DEV"
+
   },
   {
     name: "酷丁的主页",
@@ -101,7 +108,7 @@ const friends: Friend[] = [
     description: "一个羞涩的小朋友的自我介绍页面",
     avatar: "https://cold04.com/avatar.png",
     color: "#28a745",
-    tag: "DEV"
+
   },
   {
     name: "XenWayne's Blog",
@@ -109,7 +116,7 @@ const friends: Friend[] = [
     description: "寸进具欢喜，万物皆可爱。",
     avatar: "https://gcore.jsdelivr.net/gh/XenWayne/sitefile@master/img/avatar_square.png",
     color: "#4280ff",
-    tag: "DEV"
+
   },
   {
     "name": "苦小怕",
@@ -117,7 +124,7 @@ const friends: Friend[] = [
     "description": "A stduent.",
     "avatar": "https://doc.kulipai.top/avator.png",
     "color": "#5bae23",
-    tag: "MINECRAFT"
+
   },
   {
     "name": "自留地 - GES233's Blog",
@@ -125,7 +132,7 @@ const friends: Friend[] = [
     "description": "得以存在便是一个奇迹，能够思考就是一件乐事。",
     "avatar": "https://avatars.githubusercontent.com/u/30802664?v=4",
     "color": "#FFB11B",
-    tag: "DEV"
+
   },
   {
     name: "添加友链",
@@ -133,7 +140,7 @@ const friends: Friend[] = [
     description: "点我添加友链",
     avatar: "",
     color: "#f0a1a8",
-    tag: "添加友链"
+
   }
 ]
 
@@ -184,7 +191,6 @@ export default function FriendsPage() {
 function FriendCard({ friend }: { friend: Friend }) {
   const [isHovered, setIsHovered] = useState(false)
   const isAddLink = friend.url === "/friends/add"
-  const displayTag = friend.tag || "FRIEND"
 
   return (
     <motion.div
@@ -227,11 +233,7 @@ function FriendCard({ friend }: { friend: Friend }) {
             {friend.description}
           </p>
 
-          <div className="pt-2">
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium font-mono uppercase tracking-wider bg-muted text-muted-foreground/70">
-              {displayTag}
-            </span>
-          </div>
+
         </div>
       </a>
     </motion.div>
