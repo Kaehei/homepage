@@ -84,7 +84,7 @@ function StarsBackground({
     className,
     factor = 0.05,
     speed = 50,
-    transition = { stiffness: 50, damping: 20 },
+    transition = { stiffness: 50, damping: 25, mass: 0.5 },
     starColor = 'hsl(var(--foreground))',
     pointerEvents = true,
     ...props
